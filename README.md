@@ -53,11 +53,24 @@ name "skb-simplest", bus PCI, desc "Sample Port I/O PCI device for skb."
 # the PCI device is recognized by kernel (in guest shell).
 # `skb-simplest` has 00FF, 1234:1337 as Class, VendorID:DeviceID
 # `VendorID` is 0x1234 (`PCI_VENDOR_ID_QEMU`). `DeviceID` is leet.
-/ # lspci | grep 1337
-00:04.0 Class 00ff: 1234:1337
+/ # lspci -k | grep 1337
+00:04.0 Class 00ff: 1234:1337 skb-simplest
+
+# enter in QEMU monitor mode and:
+(qemu) info pci
+...
+  Bus  0, device   4, function 0:
+    Class 0255: PCI device 1234:1337
+      PCI subsystem 1af4:1100
+      BAR0: I/O at 0xc000 [0xc0ff].
+      id ""
+...
 ```
 
 ## Env
 
 Tested only on Linux(Ubuntu 20.04), QEMU v6.1.0, Linux v5.10.25(as Guest).
+
+## Reference
+- https://qiita.com/rafilia/items/f7646d12212da2a85bd8
 

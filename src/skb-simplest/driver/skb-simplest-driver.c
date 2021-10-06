@@ -24,10 +24,17 @@
 #define IOSKB_IOSIZE            0x80      // pio memory size
 #define SKB_BAR_PIO             0x0
 
+// device information
+typedef struct {
+  struct pci_dev *pdev;
 
-static const struct file_operations skb_simplest_fops = {
-	.owner = THIS_MODULE,
-};
+  unsigned long pio_base, pio_flags, pio_len;
+  unsigned pio_memsize;
+
+  unsigned short vendorid, deviceid;
+} skb_devinfo;
+
+static skb_devinfo *dinfo;
 
 // ID table of devices for this driver.
 static struct pci_device_id skb_pci_ids[] = {
@@ -38,8 +45,45 @@ MODULE_DEVICE_TABLE(pci, skb_pci_ids);
 
 // driver constructor / destructor
 static int skb_pci_probe(struct pci_dev *pdev, const struct pci_device_id *id) {
+  int ret;
   pr_info("probing now.\n");
-  return 0;
+
+  dinfo->pdev = pdev;
+  dinfo->pio_memsize = IOSKB_IOSIZE;
+
+  // enable device
+  if((ret = pci_enable_device(pdev)) != 0) {
+    pr_err("failed to enable PCI.\n");
+    goto error;
+  };
+  pr_info("enabled PCI.\n");
+
+  // get info of PIO
+  dinfo->pio_base = pci_resource_start(pdev, SKB_BAR_PIO);
+  dinfo->pio_len = pci_resource_len(pdev, SKB_BAR_PIO);
+  dinfo->pio_flags = pci_resource_flags(pdev, SKB_BAR_PIO);
+  pr_info("infomation PIO >\n");
+  pr_info("  base: 0x%016lx, len: 0x%lx, flags: %lx\n", dinfo->pio_base, dinfo->pio_len, dinfo->pio_flags);
+  if(!(dinfo->pio_flags & IORESOURCE_IO)) {
+    pr_err("BAR0 is not for PIO.\n");
+    ret = -1;
+    goto error;
+  }
+
+  // reserve PCI PIO region. Only after successful allocation, we can touch the PCI region(including vendor-id).
+  if((ret = pci_request_region(pdev, SKB_BAR_PIO, TYPE_PCI_SKB_DEV)) != 0) {
+    pr_err("failed to request PIO region.\n");
+    goto error;
+  }
+
+  pci_read_config_word(pdev, PCI_VENDOR_ID, &dinfo->vendorid);
+  pci_read_config_word(pdev, PCI_DEVICE_ID, &dinfo->deviceid);
+  pr_info("  Vendor: 0x%x, Device: 0x%x\n", dinfo->vendorid, dinfo->deviceid);
+
+  pr_info("successfully proved dev.\n");
+
+error:
+  return ret;
 }
 
 static void skb_pci_remove(struct pci_dev *pdev) {
@@ -57,6 +101,11 @@ static struct pci_driver skb_pci_driver = {
 // constructor / destructor
 static int __init skb_simplest_init(void)
 {
+  dinfo = kmalloc(sizeof(skb_devinfo), GFP_KERNEL);
+  if (IS_ERR_OR_NULL(dinfo)) {
+    pr_err("failed to alloc memory for skb_devinfo.\n");
+    return -1;
+  }
   return pci_register_driver(&skb_pci_driver);
 }
 
