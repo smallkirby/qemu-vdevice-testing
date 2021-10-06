@@ -1,0 +1,16 @@
+{
+  "C_Cpp.default.includePath": [
+    "/home/wataru/qemu-6.1.0/include",
+    "/usr/include/linux",
+    "/home/wataru/linux-stable/include",
+    "/home/wataru/qemu-6.1.0/build",
+    "/home/wataru/qemu-6.1.0/roms/ipxe/src/include"
+  ],
+  "files.associations": {
+    "*.vue": "vue",
+    "kvm.h": "c",
+    "osdep.h": "c",
+    "pci.h": "c",
+    "qdev-properties.h": "c"
+  }
+}
