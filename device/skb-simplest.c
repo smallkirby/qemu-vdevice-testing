@@ -7,7 +7,7 @@
 #include "sysemu/kvm.h"
 #include "qom/object.h"
 
-#define TYPE_PCI_SKB_DEV        "skb"
+#define TYPE_PCI_SKB_DEV        "skb-simplest"
 #define SKB_DEVICE_ID           0x1337
 #define IOSKB_IOSIZE            0x80      // pio memory size
 #define SKB_BAR_PIO             0x0

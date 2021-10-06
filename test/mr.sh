@@ -31,7 +31,7 @@ $QEMUBIN \
   -nographic \
   -cpu kvm64,smep,smap \
   -append "root=/dev/ram console=ttyS0 nokaslr" \
-  -device skb \
+  -device skb-simplest \
   -no-reboot \
   -s \
   -m 256M
