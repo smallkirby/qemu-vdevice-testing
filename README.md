@@ -41,6 +41,20 @@ softmmu_ss.add(when: 'CONFIG_SKB_SIMPLEST', if_true: files('skb-simplest.c'))
 CONFIG_SKB_SIMPLEST=y
 ```
 
+## Check if your device is really installed
+
+```test.sh
+# QEMU recognizes your device.
+$ $QEMUBIN -device help | grep skb
+name "skb-simplest", bus PCI, desc "Sample Port I/O PCI device for skb."
+
+# the PCI device is recognized by kernel (in guest shell).
+# `skb-simplest` has 00FF, 1234:1337 as Class, VendorID:DeviceID
+# `VendorID` is 0x1234 (`PCI_VENDOR_ID_QEMU`). `DeviceID` is leet.
+/ # lspci | grep 1337
+00:04.0 Class 00ff: 1234:1337
+```
+
 ## Env
 
 Tested only on Linux(Ubuntu 20.04), QEMU v6.1.0, Linux v5.10.25(as Guest).
