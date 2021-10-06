@@ -41,6 +41,8 @@ softmmu_ss.add(when: 'CONFIG_SKB_SIMPLEST', if_true: files('skb-simplest.c'))
 CONFIG_SKB_SIMPLEST=y
 ```
 
+To build driver for device, you have to download Linux kernel tree. I use buildroot and their defoncfig.
+
 ## Check if your device is really installed
 
 ```test.sh
